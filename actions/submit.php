@@ -24,7 +24,7 @@
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Get DB values        
-        $email = mysql_real_escape_string($_POST['email']);
+        $email = $_POST['email'];
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { $messages['email'] = 'ERROR: Invalid email!'; $submit = false; }
         $ip_addr = (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'] );
 

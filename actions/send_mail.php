@@ -3,7 +3,7 @@
 	
 	if (isset($_POST['token'])) {
 		
-		$job_token = mysql_real_escape_string($_POST['token']);
+		$job_token = $_POST['token'];
 		$query = 'SELECT email FROM submitted_jobs WHERE job_token = :job_token LIMIT 1';
 		$query_params = array(':job_token' => $job_token);
 	

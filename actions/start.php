@@ -4,7 +4,7 @@
 	if (isset($_POST['token'])) {
 		
 		// Start job
-		$job_token = mysql_real_escape_string($_POST['token']);
+		$job_token = $_POST['token'];
 		$command = 'nohup python VARIFI_wrapper.py -t ' . $job_token . ' > /dev/null 2>&1 & echo $!';
 		exec($command, $op);
 		

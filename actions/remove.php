@@ -4,7 +4,7 @@
 	if (isset($_POST['token'])) {
 		
 		// Start job
-		$job_token = mysql_real_escape_string($_POST['token']);
+		$job_token = $_POST['token'];
 		$path = $_SERVER['DOCUMENT_ROOT'] . '/VARIFI/uploads/';
 		
 		// Remove files
