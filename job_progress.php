@@ -16,37 +16,13 @@
 		<link rel="stylesheet" type="text/css" href="assets/css/reset.css">
 		<link rel="stylesheet" type="text/css" href="assets/css/style.css">
 		<meta name="viewport" content="initial-scale=1">
-        <style>
-            
-            #job_progress { 
-                width: 750px; 
-                margin: 1em auto; 
-                padding: 0.5em;
-                border: 1px solid #e1e1e1;
-                border-collapse: collapse;
-            }
-            #job_progress tr:nth-child(odd) {
-                background-color: #eee;
-                border-top: 1px solid #e1e1e1;
-                border-bottom: 1px solid #e1e1e1;
-            }
-            #job_progress td { padding: 0.3em; }
-            .progress_time { 
-                width: 60px;
-                display: inline-block;
-                font-weight: bold;
-            }
-            .progress_step { width: 100px; }
-            .progress_error { background-color: rgba(255, 0, 0, 0.5) !important; }
-            .progress_finished { background-color: rgba(0, 255, 0, 0.5) !important; }
-        </style>
 	</head>
 	
 	<body>    
+
+		<?php include('header.php'); ?>
 		
         <main>
-		
-            <?php include('header.php'); ?>  
 
             <article>
                 <header>
@@ -104,7 +80,7 @@
                         echo $progress_output;
                         
                     } else {
-                        print '<tr><td colspan="3">Invalid job token! Please try again.</td></tr>';
+                        print '<tr><td colspan="3" class="progress_error">Invalid job token! Please try again.</td></tr>';
                     }
                 }
             ?>

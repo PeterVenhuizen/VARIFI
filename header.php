@@ -10,8 +10,8 @@
 				<ul>
 					<li><a href="index.php">VARIFI</a></li>
 					<li><a href="index.php">web service</a></li>
-					<li>tutorial</li>
-					<li>contact</li>
+					<li><a href="">tutorial</a></li>
+					<li><a href="">contact</a></li>
 				</ul>
 				<div id="server_load" title="Server load"><span id="load" value="<?php $load = sys_getloadavg(); echo $load[0]; ?>"></span></div>
 			</nav>

@@ -21,6 +21,7 @@
 		<meta name="viewport" content="initial-scale=1">
 		<script>
 			$(document).ready(function() {
+				
 				document.getElementById("upl-bed-file").onchange = function () {
 					document.getElementById("bed-file").value = this.value;
 				};
@@ -43,12 +44,12 @@
 		</script>
 	</head>
 	
-	<body>      
-		
+	<body>   
+	   
+		<?php include('header.php'); ?>
+	
 		<main>
-          
-            <?php include('header.php'); ?>
-            
+        
             <article>
                 <header>
                     <h2>AutoVARIFI</h2>
