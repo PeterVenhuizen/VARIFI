@@ -20,21 +20,46 @@
         'token' => $token
     );
     $submit = true;
+    $checks = array();
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_FILES['upl-bed-file']['error'] != 0) {
+	$messages['bed'] = 'ERROR: Your bed file exceeds the maximum upload limit. Please limit files to 400Mb';
+    }
+    if ($_FILES['upl-read-file']['error'] != 0) {
+	$messages['read'] = 'ERROR: Your read file exceeds the maximum upload limit. Please limit files to 400Mb';
+    }
 
-        // Get DB values        
+    else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        // Get email
         $email = $_POST['email'];
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { $messages['email'] = 'ERROR: Invalid email!'; $submit = false; }
+
+		// Get IP or remote address
         $ip_addr = (isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'] );
 
+		// Get regions of interest
         if (@is_uploaded_file($_FILES['upl-bed-file']['tmp_name'])) { 
-            $bed_file = $messages['token'] . '.bed.' . pathinfo($_FILES['upl-bed-file']['name'], PATHINFO_EXTENSION);
-        } else { $messages['bed'] = 'ERROR: A bed file is required!'; $submit = false; }
+            //$bed_file = $messages['token'] . '.bed.' . pathinfo($_FILES['upl-bed-file']['name'], PATHINFO_EXTENSION);
+            $bed_file = $_FILES['upl-bed-file']['name'];
+        } else { 
+        	$messages['bed'] = 'ERROR: A bed file is required!';
+        	$submit = false;
+        }
         
+        // Get read file
         if (@is_uploaded_file($_FILES['upl-read-file']['tmp_name'])) { 
-            $read_file = $messages['token'] . '.read.' . pathinfo($_FILES['upl-read-file']['name'], PATHINFO_EXTENSION);
-        } else { $messages['read'] = 'ERROR: A read file is required!'; $submit = false; }
+            $read_file = $messages['token'] . '.' . pathinfo($_FILES['upl-read-file']['name'], PATHINFO_EXTENSION);
+            //$read_file = $_FILES['upl-read-file']['name'];
+        } else { 
+        	$messages['read'] = 'ERROR: A read file is required!'; 
+        	$submit = false; 
+        }
+
+		// Get hotspot file
+		if (@is_uploaded_file($_FILES['upl-hotspot-file']['tmp_name'])) {
+			$hotspot_file = $_FILES['upl-hotspot-file']['name'];
+		} else { $hotspot_file = ''; }
 
         if ($submit) {
 
@@ -44,57 +69,79 @@
             try {
                 $stmt = $db->prepare($query);
                 $stmt->execute($query_params);
-            } catch (PDOException $ex) { die($messages['status'] .= $ex->getMessage()); }
+            } catch (PDOException $ex) { die(array_push($checks, false)); }
 
             // Add to running_jobs
-            $query = 'INSERT INTO job_info (job_token, read_file, bed_file) VALUES (:job_token, :read_file, :bed_file)';
-            $query_params = array(':job_token' => $messages['token'], ':read_file' => $read_file, ':bed_file' => $bed_file);
+            $query = 'INSERT INTO job_info (job_token, read_file, bed_file, hotspot_file) VALUES (:job_token, :read_file, :bed_file, :hotspot_file)';
+            $query_params = array(':job_token' => $messages['token'], ':read_file' => $read_file, ':bed_file' => $bed_file, ':hotspot_file' => $hotspot_file);
             try {
                 $stmt = $db->prepare($query);
                 $stmt->execute($query_params);
-            } catch (PDOException $ex) { die($messages['status'] .= $ex->getMessage()); }
+            } catch (PDOException $ex) { die(array_push($checks, false)); }
             
-            // Upload files
-            $path = $_SERVER['DOCUMENT_ROOT'] . '/software/varifi/uploads/';
+            // Create upload folder
+            $path = '/project/varifi/html/uploads/' . $messages['token'] . '/';
+			try {
+				if (!file_exists($path)) {
+					mkdir($path, 0777, true);
+					
+					// Upload regions of interest
+					if (@is_uploaded_file($_FILES['upl-bed-file']['tmp_name'])) {
+						if (move_uploaded_file($_FILES['upl-bed-file']['tmp_name'], $path . $bed_file)) {
+							$messages['bed'] = 'Bed file uploaded!';
+						} else {
+							array_push($checks, false);
+							$messages['bed'] = 'ERROR: Upload failed!';
+							$messages['status'] = 'ERROR: Job submission failed. Please try again.';
+						}
+					} else {
+						array_push($checks, false);
+						$messages['bed'] = 'ERROR: Bad request!';
+						$messages['status'] = 'ERROR: Job submission failed. Please try again.';
+					}
+					
+					// Upload read file
+					if (@is_uploaded_file($_FILES['upl-read-file']['tmp_name'])) {
+						if ($_FILES['upl-read-file']['size'] < 400000000) {
+							if (move_uploaded_file($_FILES['upl-read-file']['tmp_name'], $path . $read_file)) {
+								$messages['read'] = 'Read file uploaded!';
+							} else { 
+								array_push($checks, false);
+								$messages['read'] = 'ERROR: Upload failed!';
+								$messages['status'] = 'ERROR: Job submission failed. Please try again.';
+							}
+						} else {
+							array_push($checks, false);
+							$messages['read'] = 'ERROR: Read file is too big. Please limit input file to 400Mb!';
+							$messages['status'] = 'ERROR: Job submission failed. Please try again.';
+						}
+					} else {
+						array_push($checks, false);
+						$messages['read'] = 'ERROR: Bad request!';
+						$messages['status'] = 'ERROR: Job submission failed. Please try again.';
+					}
+					
+					// Upload hotspot file
+					if (@is_uploaded_file($_FILES['upl-hotspot-file']['tmp_name'])) {
+						if (!move_uploaded_file($_FILES['upl-hotspot-file']['tmp_name'], $path . $hotspot_file)) {
+							$messages['status'] = 'ERROR: Job submission failed. Please try again.';
+						} else {
+							array_push($checks, false);
+						}
+					}
+			
+				}
+			} catch (ErrorException $ex) { die($ex->getMessage()); }
 
-            if (@is_uploaded_file($_FILES['upl-bed-file']['tmp_name'])) {
-                if (move_uploaded_file($_FILES['upl-bed-file']['tmp_name'], $path . $bed_file)) {
-                //if (move_uploaded_file($_FILES['upl-bed-file']['tmp_name'], $path . $_FILES['upl-bed-file']['name'])) {
-                    $messages['bed'] = 'Bed file uploaded!';
-                } else {
-                    $messages['bed'] = 'ERROR: Upload failed!';
-                    $messages['status'] = 'ERROR: Job submission failed. Please try again.';
-                }
-            } else { 
-                $messages['bed'] = 'ERROR: Bad request!'; 
-                $messages['status'] = 'ERROR: Job submission failed. Please try again.';
-            }
-            
-            if (@is_uploaded_file($_FILES['upl-read-file']['tmp_name'])) {
-                if ($_FILES['upl-read-file']['size'] < 400000000) {
-                    if (move_uploaded_file($_FILES['upl-read-file']['tmp_name'], $path . $read_file)) {
-                    //if (move_uploaded_file($_FILES['upl-read-file']['tmp_name'], $path . $_FILES['upl-read-file']['name'])) {
-                        $messages['read'] = 'Read file uploaded!';  
-                    } else { 
-                        $messages['read'] = 'ERROR: Upload failed!'; 
-                        $messages['status'] = 'ERROR: Job submission failed. Please try again.';
-                    }
-                } else {
-                    $messages['read'] = 'ERROR: Read file is too big. Please limit input files to max 400Mb!';
-                    $messages['status'] = 'ERROR: Job submission failed. Please try again.';
-                }
-            } else { 
-                $messages['read'] = 'ERROR: Bad request!'; 
-                $messages['status'] = 'ERROR: Job submission failed. Please try again.';
-            }
             
             // Check if job submission was successful
-	        if (strpos($messages['status'], 'ERROR') === false) {
-	            $messages['status'] = 'Job successfully submitted! Your job token is <span id="job_token">' . $messages['token'] . '</span>.<br>Estimated running time is between 6-8 hours. Check <a href="job_progress.php?token=' . $message['token'] . '">this</a> page for your job progress information.';
+	        #if (strpos($messages['status'], 'ERROR') === false) {
+		if (!in_array(false, $checks)) {
+	            $messages['status'] = 'Job successfully submitted! Your job token is <span id="job_token">' . $messages['token'] . '</span>.<br>Estimated running time is between 6-8 hours. Check <a href="job_progress.php?token=' . $messages['token'] . '">this</a> page for your job progress information.<br>An confirmation message has been sent to you. If you don\'t receive this email shortly, please check your spam folder.';
 	        }
             
         }
-    } 
+    }
 
     echo json_encode($messages);
     

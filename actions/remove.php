@@ -1,39 +1,29 @@
 <?php
-	require_once('../assets/config.php');	
+	require_once('../assets/config.php');
+	include '../assets/functions.php';
+	ini_set('display_errors', 1);error_reporting(E_ALL); 
 	
-	if (isset($_POST['token'])) {
+	if (isset($_POST['token']) || isset($_GET['token'])) {
 		
 		// Start job
-		$job_token = $_POST['token'];
-		$path = $_SERVER['DOCUMENT_ROOT'] . '/VARIFI/uploads/';
-		
-		// Remove files
-		$query = 'SELECT read_file, bed_file, extra_file FROM job_info WHERE job_token = :job_token LIMIT 1';
-		$query_params = array(':job_token' => $job_token);
+		$job_token = (isset($_POST['token']) ? $_POST['token'] : $_GET['token']);
+		$path = '/project/varifi/html/uploads/' . $job_token;
 
-
-		try {
-			$stmt = $db->prepare($query);
-			$stmt->execute($query_params);
-		} catch (PDOException $ex) { die( $ex->getMessage() ); }
-	
-		if ($stmt->rowCount() > 0) {
-			$row = $stmt->fetch();
-			unlink($path . $row['read_file']);
-			unlink($path . $row['bed_file']);
-			unlink($path . $row['extra_file']);
-		}
-
+		// Remove files and folder
+		rrmdir($path);
+  
 		// Remove from DB
 		try {
 			$stmt = $db->prepare("DELETE FROM job_info WHERE job_token = :job_token");
-			$stmt->execute($query_params);
-		} catch (PDOException $ex) { die( $ex->getMessage() ); }
+			$stmt->bindValue(':job_token', $job_token, PDO::PARAM_STR);
+			$stmt->execute();
+		} catch (PDOException $ex) {  }
 		
 		try {
 			$stmt = $db->prepare("DELETE FROM submitted_jobs WHERE job_token = :job_token");
-			$stmt->execute($query_params);
-		} catch (PDOException $ex) { die( $ex->getMessage() ); }
+			$stmt->bindValue(':job_token', $job_token, PDO::PARAM_STR);
+			$stmt->execute();
+		} catch (PDOException $ex) {  }
 	}
 	
 ?>

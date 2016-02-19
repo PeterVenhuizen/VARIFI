@@ -21,7 +21,8 @@ $(document).ready(function() {
         beforeSend: function() {
             status.fadeOut();
             progress.fadeIn();
-            bar.width('0%');
+            $('#floatingCirclesG').fadeIn();
+	    bar.width('0%');
             percent.html('0%');
         },
 
@@ -33,6 +34,9 @@ $(document).ready(function() {
 
         complete: function(data) {
             //console.log(data.responseJSON);
+
+	    // Hide loader
+	    $('#floatingCirclesG').fadeOut();
             
             // Check email
             set_status('#email_status', data.responseJSON.email);

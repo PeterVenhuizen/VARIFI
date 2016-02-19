@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import sys, getopt
+import argparse
 import subprocess, shlex
 import MySQLdb
 import smtplib
@@ -15,15 +16,36 @@ def run(token):
 	the MySQL DB for the running job. '''
 	
 	# Connect to MySQL DB
-	db = MySQLdb.connect('localhost', 'root', 'root', 'VARIFI')
+	db = MySQLdb.connect('gray', 'varifi', 'v4r1f1us3r', 'varifi')
 	cursor = db.cursor()
 	
 	# Get input files for job
-	cursor.execute('SELECT read_file, bed_file, extra_file FROM job_info WHERE job_token = "%s" LIMIT 1' % (token))
-	jobFiles = FetchOneAssoc
+	cursor.execute('SELECT read_file, bed_file, hotspot_file FROM job_info WHERE job_token = "%s" LIMIT 1' % (token))
+	jobFiles = FetchOneAssoc(cursor)
 	
 	# Run VARIFI
-	cmd = 'python dummy_VARIFI.py'
+	cmd = 'python /project/varifi/html/actions/dummy_VARIFI.py'
+	'''
+	cmd = 'python /home/CIBIV/milica/workspace/mondti/modti/mondti/mondti-pipeline.py \
+-r /project/ngs-work/meta/reference/genomes/hg19_human/hg19.fa \
+-bwa \
+-bt2 \
+-ngm \
+-l /scratch/varifi_qsub.{0}.log \
+-lt 1 \
+-v /project/ngs-work/meta/annotations/snps/dbSNP/human_9606/TSI-12163.vcf \
+-ampl /project/varifi/html/uploads/{0}/{1} \
+/scratch/varifi_qsub.{0}'.format(token, jobFiles['bed_file'])
+	'''
+
+	# Set job start time/message
+	message = 'time=%s;step=STARTED;message=Your job has been started.' % (time.strftime('%H:%M'))
+	sql = 'UPDATE job_info SET progress = CONCAT(IFNULL(progress, ""), "%s") WHERE job_token = "%s"' % (message, token)
+	try:
+		cursor.execute(sql)
+		db.commit()
+	except: db.rollback()
+
 	process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
 	while True:
 		output = process.stdout.readline()
@@ -54,9 +76,9 @@ def run(token):
 					cursor.execute(sql)
 					email = cursor.fetchone()[0]
 					
-					sender = 'no_reply@varifi.at'
+					sender = 'no_reply@varifi.cibiv.univie.ac.at'
 					receivers = [email]
-					message = """From: From varifi.at <%s>
+					message = """From: From varifi.cibiv.univie.ac.at <%s>
 					To: To <%s>
 					MIME-Version: 1.0
 					Content-type: text/html
@@ -77,6 +99,8 @@ def run(token):
 						cursor.execute(sql)
 						db.commit()
 					except: db.rollback()
+					
+					# Move data to /project/varifi/uploads/[token]/
 				
 				else: 
 					message = 'time=%s;step=%s;message=%s;|' % (t, output.split(':')[0], output.rstrip().split(':')[1])
@@ -93,17 +117,8 @@ def run(token):
 
 if __name__ == '__main__':
 	
-	try:
-		opts, args = getopt.getopt(sys.argv[1:], 't:', ['token='])
-	except getopt.GetoptError:
-		sys.exit(2)
-		
-	for opt, arg in opts:
-		if opt in ('-t', '--token'):
-			token = arg
-			
-	try:
-		run(token)
-	except NameError as err:
-		print err
-		print 'ERROR: Missing job token'
+	parser = argparse.ArgumentParser(description="Wrapper around VARIFI pipeline, which starts the pipeline and tracks progress.")
+	parser.add_argument('-t', '--token', help="VARIFI unique job token", required=True)
+	args = parser.parse_args()
+	
+	run(args.token)

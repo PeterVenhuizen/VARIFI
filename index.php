@@ -18,6 +18,7 @@
 		<script type="text/javascript" src="actions/submit.js"></script>
 		<link rel="stylesheet" type="text/css" href="assets/css/reset.css">
 		<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+		<link rel="stylesheet" type="text/css" href="assets/css/loading.css">
 		<meta name="viewport" content="initial-scale=1">
 		<script>
 			$(document).ready(function() {
@@ -27,6 +28,9 @@
 				};
 				document.getElementById("upl-read-file").onchange = function () {
 					document.getElementById("read-file").value = this.value;
+				};
+				document.getElementById("upl-hotspots-file").onchange = function () {
+					document.getElementById("hotspots-file").value = this.value;
 				};
 				
 				$('.toggle_example').click(function(e) {
@@ -79,7 +83,7 @@
 							<span>Browse</span>
 							<input type="file" accept=".bed,.txt" name="upl-bed-file" class="upload" id="upl-bed-file">
 						</div>
-                        <p class="help">Upload the regions of interest in valid bed format (review bed format <a href="http://www.ensembl.org/info/website/upload/bed.html" target="_blank">here</a>). Accepted file extensions are '.bed' and '.txt'.</p>
+                        <p class="help">Upload the regions of interest in valid bed format (review bed format <a href="http://www.ensembl.org/info/website/upload/bed.html" target="_blank">here</a>).</p>
                         <button class="toggle_example">Show example</button>
                         <pre class="file_example">
 1	3837	4076	JUNC00000001	9	+	3837	4076	255,0,0	2	76,81	0,158
@@ -96,7 +100,7 @@
 							<span>Browse</span>
 							<input type="file" accept=".bam,.fastq,.gz,.fq" name="upl-read-file" class="upload" id="upl-read-file">
 						</div>
-                        <p class="help">Upload the amplicon sequencing data in fastq format. Make sure that the read file does not exceed 400Mb.</p>
+                        <p class="help">Upload the amplicon sequencing data in (gunzipped) fastq or bam format. Make sure that the read file does not exceed 400Mb.</p>
                         <button class="toggle_example">Show example</button>
                         <pre class="file_example">
 @SEQ_ID
@@ -112,7 +116,7 @@ GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT
 						<input type="text" id="hotspots-file" name="hotspots-file" placeholder="Choose file" disabled="disabled">
 						<div class="file_upload">
 							<span>Browse</span>
-							<input type="file" accept=".bed,.txt" name="upl-hotspots-file" class="upload" id="upl-hotspots-file">
+							<input type="file" accept=".bed,.txt" name="upl-hotspot-file" class="upload" id="upl-hotspots-file">
 						</div>
 						<p class="help">Upload a hotspots file.</p>
 					</fieldset>
@@ -131,6 +135,16 @@ GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT
                     <div class="bar"></div>
                     <div class="percent">0%</div>
                 </div>
+                <div id="floatingCirclesG">
+			<div class="f_circleG" id="frotateG_01"></div>
+			<div class="f_circleG" id="frotateG_02"></div>
+			<div class="f_circleG" id="frotateG_03"></div>
+			<div class="f_circleG" id="frotateG_04"></div>
+			<div class="f_circleG" id="frotateG_05"></div>
+			<div class="f_circleG" id="frotateG_06"></div>
+			<div class="f_circleG" id="frotateG_07"></div>
+			<div class="f_circleG" id="frotateG_08"></div>
+		</div>
                 <div class="status" id="email_status"></div>
                 <div class="status" id="bed_status"></div>
                 <div class="status" id="read_status"></div>
