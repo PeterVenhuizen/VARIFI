@@ -135,19 +135,24 @@ GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT
                     <div class="bar"></div>
                     <div class="percent">0%</div>
                 </div>
+                
+                <!-- http://cssload.net/en/spinners -->
                 <div id="floatingCirclesG">
-			<div class="f_circleG" id="frotateG_01"></div>
-			<div class="f_circleG" id="frotateG_02"></div>
-			<div class="f_circleG" id="frotateG_03"></div>
-			<div class="f_circleG" id="frotateG_04"></div>
-			<div class="f_circleG" id="frotateG_05"></div>
-			<div class="f_circleG" id="frotateG_06"></div>
-			<div class="f_circleG" id="frotateG_07"></div>
-			<div class="f_circleG" id="frotateG_08"></div>
-		</div>
+					<div class="f_circleG" id="frotateG_01"></div>
+					<div class="f_circleG" id="frotateG_02"></div>
+					<div class="f_circleG" id="frotateG_03"></div>
+					<div class="f_circleG" id="frotateG_04"></div>
+					<div class="f_circleG" id="frotateG_05"></div>
+					<div class="f_circleG" id="frotateG_06"></div>
+					<div class="f_circleG" id="frotateG_07"></div>
+					<div class="f_circleG" id="frotateG_08"></div>
+				</div>
+				
+				<!-- Status messages -->
                 <div class="status" id="email_status"></div>
                 <div class="status" id="bed_status"></div>
                 <div class="status" id="read_status"></div>
+                <div class="status" id="hotspot_status"></div>
                 <div class="status" id="job_status"></div>
             </article>
             

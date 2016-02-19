@@ -1,11 +1,13 @@
 function set_status(element, message) {
-    if (message.indexOf("ERROR") >= 0) {
-        $(element).css('background', 'url(assets/img/status_ERROR.png) no-repeat left center');
-    } else {
-        $(element).css('background', 'url(assets/img/status_OK.png) no-repeat left center');
-    }
-    $(element).css('background-size', '30px 30px');
-    $(element).html(message).fadeIn();
+	if (message.length > 0) {
+		if (message.indexOf("ERROR") >= 0) {
+		    $(element).css('background', 'url(assets/img/status_ERROR.png) no-repeat left center');
+		} else {
+		    $(element).css('background', 'url(assets/img/status_OK.png) no-repeat left center');
+		}
+		$(element).css('background-size', '30px 30px');
+		$(element).html(message).fadeIn();
+	}
 }
 
 $(document).ready(function() {
@@ -22,7 +24,7 @@ $(document).ready(function() {
             status.fadeOut();
             progress.fadeIn();
             $('#floatingCirclesG').fadeIn();
-	    bar.width('0%');
+	    	bar.width('0%');
             percent.html('0%');
         },
 
@@ -35,22 +37,25 @@ $(document).ready(function() {
         complete: function(data) {
             //console.log(data.responseJSON);
 
-	    // Hide loader
-	    $('#floatingCirclesG').fadeOut();
+			// Hide loader
+			$('#floatingCirclesG').fadeOut();
             
-            // Check email
+            // Check messages
             set_status('#email_status', data.responseJSON.email);
             set_status('#bed_status', data.responseJSON.bed);
             set_status('#read_status', data.responseJSON.read);
+            set_status('#hotspot_status', data.responseJSON.hotspot);
             set_status('#job_status', data.responseJSON.status);
             var token = data.responseJSON.token;
             
-            if (token.length == 0) { // Error
+            // Error
+            if (token.length == 0) {
             	
             	// Remove everything
             	$.post("actions/remove.php", { token: token});
-            	
-            } else { // Success
+            
+            // Success
+            } else {
             	
             	// Start job
             	$.post("actions/start.php", { token: token });

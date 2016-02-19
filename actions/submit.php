@@ -5,6 +5,7 @@
     require_once('../assets/config.php');
     include('../assets/functions.php');
 
+	// Make sure the job_token is unique
     $is_bad_token = True;
     while ($is_bad_token) {
 		$token = generate_token(8);
@@ -12,23 +13,30 @@
 		if (!$n_matches) { $is_bad_token = False; }
     }
 
+	// Initialize upload status messages
     $messages = array(
         'bed' => '',
         'read' => '',
-        'email' => 'Email OK!',
+        'hotspot' => '',
+        'email' => '',
         'status' => 'ERROR: Your job has not been submitted! <br> Please check the individual errors and try again.',
         'token' => $token
     );
     $submit = true;
     $checks = array();
 
+	// Check if any of the uploaded files exceeds the upload limit
     if ($_FILES['upl-bed-file']['error'] != 0) {
-	$messages['bed'] = 'ERROR: Your bed file exceeds the maximum upload limit. Please limit files to 400Mb';
+		$messages['bed'] = 'ERROR: Your bed file exceeds the maximum upload limit. Please limit files to 400Mb';
     }
     if ($_FILES['upl-read-file']['error'] != 0) {
-	$messages['read'] = 'ERROR: Your read file exceeds the maximum upload limit. Please limit files to 400Mb';
+		$messages['read'] = 'ERROR: Your read file exceeds the maximum upload limit. Please limit files to 400Mb';
+    }
+    if ($_FILES['upl-hotspot-file']['error'] != 0) {
+    	$messages['hotspot'] = 'ERROR: Your hotspots file exceeds the maximum upload limit. Please limit files to 400Mb';
     }
 
+	// Proceed to uploading
     else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Get email
@@ -50,7 +58,6 @@
         // Get read file
         if (@is_uploaded_file($_FILES['upl-read-file']['tmp_name'])) { 
             $read_file = $messages['token'] . '.' . pathinfo($_FILES['upl-read-file']['name'], PATHINFO_EXTENSION);
-            //$read_file = $_FILES['upl-read-file']['name'];
         } else { 
         	$messages['read'] = 'ERROR: A read file is required!'; 
         	$submit = false; 
@@ -83,7 +90,7 @@
             $path = '/project/varifi/html/uploads/' . $messages['token'] . '/';
 			try {
 				if (!file_exists($path)) {
-					mkdir($path, 0777, true);
+					mkdir($path, 0755, true);
 					
 					// Upload regions of interest
 					if (@is_uploaded_file($_FILES['upl-bed-file']['tmp_name'])) {
@@ -127,16 +134,16 @@
 							$messages['status'] = 'ERROR: Job submission failed. Please try again.';
 						} else {
 							array_push($checks, false);
+							$messages['hotspot'] = 'ERROR: Bad request!';
+							$messages['status'] = 'ERROR: Job submission failed. Please try again.';
 						}
 					}
 			
 				}
 			} catch (ErrorException $ex) { die($ex->getMessage()); }
-
             
-            // Check if job submission was successful
-	        #if (strpos($messages['status'], 'ERROR') === false) {
-		if (!in_array(false, $checks)) {
+            // Check if there were not errors
+			if (!in_array(false, $checks)) {
 	            $messages['status'] = 'Job successfully submitted! Your job token is <span id="job_token">' . $messages['token'] . '</span>.<br>Estimated running time is between 6-8 hours. Check <a href="job_progress.php?token=' . $messages['token'] . '">this</a> page for your job progress information.<br>An confirmation message has been sent to you. If you don\'t receive this email shortly, please check your spam folder.';
 	        }
             
