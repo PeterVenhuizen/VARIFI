@@ -26,15 +26,17 @@
     $checks = array();
 
 	// Check if any of the uploaded files exceeds the upload limit
-    if ($_FILES['upl-bed-file']['error'] != 0) {
-		$messages['bed'] = 'ERROR: Your bed file exceeds the maximum upload limit. Please limit files to 400Mb';
-    }
-    if ($_FILES['upl-read-file']['error'] != 0) {
-		$messages['read'] = 'ERROR: Your read file exceeds the maximum upload limit. Please limit files to 400Mb';
-    }
-    if ($_FILES['upl-hotspot-file']['error'] != 0) {
-    	$messages['hotspot'] = 'ERROR: Your hotspots file exceeds the maximum upload limit. Please limit files to 400Mb';
-    }
+	if ($_FILES['upl-bed-file']['error'] != 0 || $_FILES['upl-read-file']['error'] != 0 || $_FILES['upl-hotspot-file']['error'] != 0) {
+	
+		if ($_FILES['upl-bed-file']['error'] != 0) {
+			$messages['bed'] = 'ERROR: Your bed file exceeds the maximum upload limit. Please limit files to 400Mb';
+		}
+		if ($_FILES['upl-read-file']['error'] != 0) {
+			$messages['read'] = 'ERROR: Your read file exceeds the maximum upload limit. Please limit files to 400Mb';
+		}
+		if ($_FILES['upl-hotspot-file']['error'] != 0) {
+			$messages['hotspot'] = 'ERROR: Your hotspots file exceeds the maximum upload limit. Please limit files to 400Mb';
+		}
 
 	// Proceed to uploading
     else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
