@@ -39,6 +39,9 @@
         if (@is_uploaded_file($_FILES['upl-bed-file']['tmp_name'])) { 
             //$bed_file = $messages['token'] . '.bed.' . pathinfo($_FILES['upl-bed-file']['name'], PATHINFO_EXTENSION);
             $bed_file = $_FILES['upl-bed-file']['name'];
+        } else if ( in_array($_FILES['upl-bed-file']['error'], array(1, 2)) ) {
+        	$messages['bed'] = 'ERROR: Your bed file exceeds the maximum upload limit. Please limit files to 400Mb';
+        	$submit = false;
         } else { 
         	$messages['bed'] = 'ERROR: A bed file is required!';
         	$submit = false;
@@ -47,6 +50,9 @@
         // Get read file
         if (@is_uploaded_file($_FILES['upl-read-file']['tmp_name'])) { 
             $read_file = $messages['token'] . '.' . pathinfo($_FILES['upl-read-file']['name'], PATHINFO_EXTENSION);
+        } else if ( in_array($_FILES['upl-read-file']['error'], array(1, 2)) ) {
+        	$messages['read'] = 'ERROR: Your read file exceeds the maximum upload limit. Please limit files to 400Mb';
+        	$submit = false;
         } else { 
         	$messages['read'] = 'ERROR: A read file is required!'; 
         	$submit = false; 
@@ -55,6 +61,9 @@
 		// Get hotspot file
 		if (@is_uploaded_file($_FILES['upl-hotspot-file']['tmp_name'])) {
 			$hotspot_file = $_FILES['upl-hotspot-file']['name'];
+		} else if ( in_array($_FILES['upl-hotspit-file']['error'], array(1, 2)) ) {
+			$messages['hotspot'] = 'ERROR: Your hotspots file exceeds the maximum upload limit. Please limit files to 400Mb';
+			$submit = false;
 		} else { $hotspot_file = ''; }
 
         if ($submit) {
