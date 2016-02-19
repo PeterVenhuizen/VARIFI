@@ -138,7 +138,7 @@
             
         }
     } else {
-    	$messages['status'] = 'ERROR: One (or more) of your uploaded files exceeds the maximum upload limit. Please limit files to max 400Mb';
+    	$messages['status'] = 'ERROR: Your job has not been submitted!<br>One (or more) of your uploaded files exceeds the maximum upload limit. Please limit files to max 400Mb';
     }
 
     echo json_encode($messages);
