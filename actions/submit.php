@@ -61,7 +61,7 @@
 		// Get hotspot file
 		if (@is_uploaded_file($_FILES['upl-hotspot-file']['tmp_name'])) {
 			$hotspot_file = $_FILES['upl-hotspot-file']['name'];
-		} else if ( in_array($_FILES['upl-hotspit-file']['error'], array(1, 2)) ) {
+		} else if ( in_array($_FILES['upl-hotspot-file']['error'], array(1, 2)) ) {
 			$messages['hotspot'] = 'ERROR: Your hotspots file exceeds the maximum upload limit. Please limit files to 400Mb';
 			$submit = false;
 		} else { $hotspot_file = ''; }
