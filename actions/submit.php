@@ -1,7 +1,7 @@
 <?php
 
     header('Content-type: application/json');
-
+	ini_set('display_errors', 1);error_reporting(E_ALL); 
     require_once('../assets/config.php');
     include('../assets/functions.php');
 
@@ -25,21 +25,8 @@
     $submit = true;
     $checks = array();
 
-	// Check if any of the uploaded files exceeds the upload limit
-	if ($_FILES['upl-bed-file']['error'] != 0 || $_FILES['upl-read-file']['error'] != 0 || $_FILES['upl-hotspot-file']['error'] != 0) {
-	
-		if ($_FILES['upl-bed-file']['error'] != 0) {
-			$messages['bed'] = 'ERROR: Your bed file exceeds the maximum upload limit. Please limit files to 400Mb';
-		}
-		if ($_FILES['upl-read-file']['error'] != 0) {
-			$messages['read'] = 'ERROR: Your read file exceeds the maximum upload limit. Please limit files to 400Mb';
-		}
-		if ($_FILES['upl-hotspot-file']['error'] != 0) {
-			$messages['hotspot'] = 'ERROR: Your hotspots file exceeds the maximum upload limit. Please limit files to 400Mb';
-		}
-
 	// Proceed to uploading
-    else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Get email
         $email = $_POST['email'];
@@ -111,7 +98,7 @@
 					
 					// Upload read file
 					if (@is_uploaded_file($_FILES['upl-read-file']['tmp_name'])) {
-						if ($_FILES['upl-read-file']['size'] < 400000000) {
+						if (!in_array($_FILES['upl-read-file']['error'], array(1, 2))) {
 							if (move_uploaded_file($_FILES['upl-read-file']['tmp_name'], $path . $read_file)) {
 								$messages['read'] = 'Read file uploaded!';
 							} else { 

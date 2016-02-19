@@ -35,7 +35,6 @@ $(document).ready(function() {
         },
 
         complete: function(data) {
-            //console.log(data.responseJSON);
 
 			// Hide loader
 			$('#floatingCirclesG').fadeOut();
