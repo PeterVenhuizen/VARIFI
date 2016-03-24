@@ -9,11 +9,11 @@
 			<nav>
 				<ul>
 					<li><a href="index.php">VARIFI</a></li>
-					<li><a href="index.php">web service</a></li>
 					<li><a href="">tutorial</a></li>
+					<li><a href="recent_jobs.php">recent jobs</a></li>
 					<li><a href="">contact</a></li>
 				</ul>
-				<div id="server_load" title="Server load"><span id="load" value="<?php $load = sys_getloadavg(); echo $load[0]; ?>"></span></div>
+				<div id="server_load" title="Server load"><span id="load" value="<?php echo shell_exec("SGE_ROOT=/software/sge-2011.11 SGE_QMASTER_PORT=6454 SGE_EXECD_PORT=6455 /software/sge-2011.11/bin/linux-x64/qhost | grep fitch | awk '{ print $4 }'"); ?>"></span></div>
 			</nav>
 		</header>
 
