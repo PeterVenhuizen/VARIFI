@@ -41,4 +41,29 @@
 	} catch (UnexpectedValueException $ex) { }
     }
     
+    function select_files($token, $selection) {
+
+	$path = "/project/varifi/html/uploads/" . $token . "/";
+
+	if ($handle = opendir($path)) {
+	    while (false !== ($entry = readdir($handle))) {
+		$extension = strtolower(pathinfo($entry, PATHINFO_EXTENSION));
+		if (strpos($entry, $token) !== false) {
+
+		    foreach ($selection as &$sel) {
+			if (strpos($entry, $sel) !== false) {
+
+			      echo "	<tr>
+						  <td>" . $entry . "</td>
+						  <td>" . formatFileSize(filesize($path . $entry)) . "</td>
+						  <td><a href='download.php?file=" . $entry . "'>Download</a></td>
+					  </tr>";
+
+			}
+		    }
+		}
+	    }
+	}
+    }
+    
 ?>

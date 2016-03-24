@@ -43,7 +43,7 @@
 					($(this).text() === "+ More options") ? $(this).html("<span id='more'>-</span> Less options") : $(this).html("<span id='more'>+</span> More options");
 					$('.optional').toggle();
 				});
-						
+				
 			});
 		</script>
 	</head>
@@ -56,10 +56,9 @@
         
             <article>
                 <header>
-                    <h2>AutoVARIFI</h2>
+                    <h2>VARIFI</h2>
                 </header>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vel bibendum enim. Nam dapibus est sit amet commodo faucibus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Praesent id dolor id ante feugiat dapibus. Etiam vel dui leo. Sed porttitor dictum nibh, id facilisis magna elementum vel. Vestibulum aliquam et est volutpat ultricies. Donec finibus, justo eget malesuada pulvinar, lacus nulla finibus metus, quis interdum leo tortor id dolor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                <!--<img src="assets/img/workflow.png" alt="VARIFI workflow">-->
+                <p>Thank you for choosing VARIFI, a pipeline for an automatic variant identification, filtering and annotation of amplicon sequencing data. Please follow the instructions written in Tutorial for an appropriate usage.</p><br><p>NOTE: VARIFI is currently in a testing phase. Full usability will be available soon.</p>
             </article>
 
 			<section id="form_wrapper">

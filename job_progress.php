@@ -2,7 +2,11 @@
 
 <?php 
 	require_once('assets/config.php');
-	ini_set('display_errors', 1);error_reporting(E_ALL); 
+
+	# Refresh page every 5 minutes
+	date_default_timezone_set('Europe/Vienna');
+	$url = "http://varifi.cibiv.univie.ac.at" . $_SERVER['REQUEST_URI'];
+	header("Refresh: 300; URL=$url");
 ?>
 
 <html>
@@ -28,12 +32,13 @@
                 <header>
                     <h2>Job progress</h2>
                 </header>
+		<p>This page will be automatically updated every 5 minutes. Last updated on <strong><?php echo date("H:i:s"); ?></strong>.</p>
             </article>
-            
-            <table id="job_progress">
+
+            <table class="overview_table">
             <?php
                 if ( isset($_GET['token']) || isset($_POST['get_progress']) ) {
-                    
+              
                     $token = (isset($_GET['token']) ? $_GET['token'] : $_POST['job_token']);
                     $query = 'SELECT progress FROM job_info WHERE job_token = :token LIMIT 1';
                     $query_params = array(':token' => $token);

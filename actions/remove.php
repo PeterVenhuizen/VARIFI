@@ -1,7 +1,6 @@
 <?php
 	require_once('../assets/config.php');
 	include '../assets/functions.php';
-	ini_set('display_errors', 1);error_reporting(E_ALL); 
 	
 	if (isset($_POST['token']) || isset($_GET['token'])) {
 		

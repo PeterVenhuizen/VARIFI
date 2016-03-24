@@ -15,6 +15,7 @@ main {
 	padding: 0;
 }
 a.visited { color: inherit; }
+strong { font-weight: bold; }
 
 /* HEADER */
 #page_header { 
@@ -291,7 +292,7 @@ p.help { font-style: italic; margin: 0.2em 0; }
 	height: 20px;
 	width: 0%;
 	-webkit-transition: width .3s;
-	-moz-transition: width .3s'
+	-moz-transition: width .3s;
 	transition: width .3s;
 }
 .percent {
@@ -308,20 +309,20 @@ p.help { font-style: italic; margin: 0.2em 0; }
 	margin-top: 5px;
 	vertical-align: middle;
 }
-
+#job_token { font-weight: bold; }
 
 /* JOB PROGRESS */
-#job_progress { 
+.overview_table { 
     margin: 1em; 
     border: 1px solid #e1e1e1;
     border-collapse: collapse;
 }
-#job_progress tr:nth-child(odd) {
+.overview_table tr:nth-child(odd) {
     background-color: #eee;
     border-top: 1px solid #e1e1e1;
     border-bottom: 1px solid #e1e1e1;
 }
-#job_progress td { padding: 0.3em; }
+.overview_table td { padding: 0.3em; }
 .progress_time { 
     width: 60px;
     display: inline-block;
@@ -331,6 +332,9 @@ p.help { font-style: italic; margin: 0.2em 0; }
 .progress_error { background-color: rgba(255, 0, 0, 0.5) !important; }
 .progress_finished { background-color: rgba(0, 255, 0, 0.5) !important; }
 
+
+/* JOB RESULTS */
+.download_h3 { font-weight: bold; font-size: 1.2em; }
 
 @viewport, @-ms-viewport { zoom: 1.0; }
 @media screen and (max-width: 480px) { 
@@ -357,12 +361,13 @@ p.help { font-style: italic; margin: 0.2em 0; }
 @media screen and (min-width: 1025px) { 
 	
 	/* HEADER */
-	#page_header nav, #page_footer nav, form, article, #job_progress {
+	#page_header nav, #page_footer nav, form, article, .overview_table {
 		width: -moz-calc(900px - 2em);
 		width: -webkit-calc(900px - 2em);
 		width: calc(900px - 2em);
 		margin: 0 auto;
 	}
+	.overview_table { margin: 1em auto; }
 	
 	from, article { margin: 1em auto; }
 

@@ -1,7 +1,6 @@
 <?php
 
     header('Content-type: application/json');
-	ini_set('display_errors', 1);error_reporting(E_ALL); 
     require_once('../assets/config.php');
     include('../assets/functions.php');
 
@@ -37,7 +36,6 @@
 
 		// Get regions of interest
         if (@is_uploaded_file($_FILES['upl-bed-file']['tmp_name'])) { 
-            //$bed_file = $messages['token'] . '.bed.' . pathinfo($_FILES['upl-bed-file']['name'], PATHINFO_EXTENSION);
             $bed_file = $_FILES['upl-bed-file']['name'];
         } else { 
         	$messages['bed'] = 'ERROR: A bed file is required!';
@@ -119,8 +117,8 @@
 					
 					// Upload hotspot file
 					if (@is_uploaded_file($_FILES['upl-hotspot-file']['tmp_name'])) {
-						if (!move_uploaded_file($_FILES['upl-hotspot-file']['tmp_name'], $path . $hotspot_file)) {
-							$messages['status'] = 'ERROR: Job submission failed. Please try again.';
+						if (move_uploaded_file($_FILES['upl-hotspot-file']['tmp_name'], $path . $hotspot_file)) {
+							// pass
 						} else {
 							array_push($checks, false);
 							$messages['hotspot'] = 'ERROR: Bad request!';

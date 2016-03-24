@@ -36,7 +36,7 @@
 							View job results <a href="' . $config["absolute_path"] . 'job_results.php?token=' . $job_token . '">here</a>.
 						</p>
 						<p style="font-style: italic">
-							This is an automatically generated email - please do not reply to it. If you have any questions please email <a href="mailto:peter.venhuizen@univie.ac.at?Subject=VARIFI%20questions">Peter Venhuizen</a>
+							This is an automatically generated email - please do not reply to it. If you have any questions please contact the <a href="mailto:peter.venhuizen@univie.ac.at?Subject=VARIFI%20questions">VARIFI Support Team</a>.
 						</p>
 					</body>
 				</html>
@@ -47,7 +47,7 @@
 
 			// Additional headers
 			$headers .= 'To: ' . $to . "\r\n";
-			$headers .= 'From: no_reply@varifi.at' . "\r\n";
+			$headers .= 'From: no_reply@varifi.cibiv.univie.ac.at' . "\r\n";
 		
 			mail($to, $subject, $message, $headers);
 			

@@ -57,7 +57,7 @@ $(document).ready(function() {
             } else {
             	
             	// Start job
-            	$.post("actions/start.php", { token: token });
+            	$.post("start.php", { token: token });
             	
             	// Send mail
             	$.post("actions/send_mail.php", { token: token });

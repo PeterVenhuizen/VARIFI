@@ -4,12 +4,15 @@
 import argparse
 import subprocess, shlex
 import MySQLdb
-import smtplib
 import time
+import datetime
 from VARIFI_functions import FetchOneAssoc
 
-# MySQLdb tutorial
-# http://www.tutorialspoint.com/python/python_database_access.htm
+import smtplib
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
+from email.MIMEBase import MIMEBase
+from email import encoders
 
 def run(token): 
 	''' Run the VARIFI pipeline and realtime parse the stdout output. Update
@@ -24,22 +27,22 @@ def run(token):
 	jobFiles = FetchOneAssoc(cursor)
 	
 	# Run VARIFI
-	cmd = 'python /project/varifi/html/actions/dummy_VARIFI.py'
-	'''
-	cmd = 'python /home/CIBIV/milica/workspace/mondti/modti/mondti/mondti-pipeline.py \
--r /project/ngs-work/meta/reference/genomes/hg19_human/hg19.fa \
--bwa \
--bt2 \
--ngm \
--l /scratch/varifi_qsub.{0}.log \
--lt 1 \
--v /project/ngs-work/meta/annotations/snps/dbSNP/human_9606/TSI-12163.vcf \
--ampl /project/varifi/html/uploads/{0}/{1} \
-/scratch/varifi_qsub.{0}'.format(token, jobFiles['bed_file'])
-	'''
+	cmd = 'python /home/CIBIV/milica/workspace/mondti/modti/mondti/mondti-pipeline.py '
+	cmd += '-r /project/ngs-work/meta/reference/genomes/hg19_human/hg19.fa '
+	cmd += '-bwa '
+	cmd += '-bt2 '
+	cmd += '-ngm '
+	cmd += '-l /scratch/varifi_qsub.{0}/{0}.log '.format(token)
+	cmd += '-lt 1 '
+	cmd += '-v /project/ngs-work/meta/annotations/snps/dbSNP/human_9606/TSI-12163.vcf '
+	cmd += '-ampl /project/varifi/html/uploads/{}/{} '.format(token, jobFiles['bed_file'])
+	cmd += '-hotspot /project/varifi/html/uploads/{}/{} '.format(token, jobFiles['hotspot_file']) if len(jobFiles['hotspot_file']) > 0 else ''
+	cmd += '/scratch/varifi_qsub.{}/{}'.format(token, jobFiles['read_file'])
+
+	subprocess.call("echo {} >> /project/varifi/html/qsub_error.log".format(cmd), shell=True)
 
 	# Set job start time/message
-	message = 'time=%s;step=STARTED;message=Your job has been started.' % (time.strftime('%H:%M'))
+	message = 'time=%s;step=STARTED;message=Your job has been started.;|' % (time.strftime('%H:%M'))
 	sql = 'UPDATE job_info SET progress = CONCAT(IFNULL(progress, ""), "%s") WHERE job_token = "%s"' % (message, token)
 	try:
 		cursor.execute(sql)
@@ -53,54 +56,83 @@ def run(token):
 			break
 		if output:
 			# Parse output and update MySQL
-			
 			if not 'ok' in output:
 
-				#t = time.strftime('%d-%m-%Y %H:%M')
 				t = time.strftime('%H:%M')
 				if 'ERRORS' in output:
-				
-					# Parse log file
-					
-					# Send email
-				
-					message = 'time=%s;error=%s;|' % (t, output.rstrip())
+			
+					# Get submitter email
+					sql = 'SELECT email FROM submitted_jobs WHERE job_token = "%s"' % (token)
+					cursor.execute(sql)
+					email = cursor.fetchone()[0]
+	
+					# Send log file				
+					from_addr = "error@varifi.cibiv.univie.ac.at"
+					to_addr = "peter.venhuizen@univie.ac.at"
+
+					msg = MIMEMultipart()
+					msg['From'] = from_addr
+					msg['To'] = to_addr
+					msg['Subject'] = 'VARIFI job ({}) error'.format(token)
+					body = 'Job submitted by {}'.format(email)
+					msg.attach(MIMEText(body, 'plain'))
+
+					attachment = open('/scratch/varifi_qsub.{0}/{0}.log'.format(token), 'rb')
+					part = MIMEBase('application', 'octet-stream')
+					part.set_payload((attachment).read())
+					encoders.encode_base64(part)
+					part.add_header('Content-Disposition', "attachment; filename= {}.log".format(token))
+					msg.attach(part)
+
+					try:
+						server = smtplib.SMTP('localhost')
+						text = msg.as_string()
+						server.sendmail(from_addr, to_addr, text)
+						server.quit()
+					except SMTPException: pass
+	
+					# DB update message
+					message = 'time=%s;error=An error occurred while running your job. The error report has been send to the VARIFI Support Team and they will contact you on how to proceed.;|' % (t)
 					
 				elif 'Finished' in output:
 					message = 'time=%s;finished=%s;' % (t, token)
-					
+				
+                                        # Update MySQL
+                                        sql = 'UPDATE submitted_jobs SET available_until=CURRENT_TIMESTAMP + INTERVAL 1 WEEK, finished=1 WHERE job_token = "%s"' % (token)
+                                        try:
+                                                cursor.execute(sql)
+                                                db.commit()
+                                        except: db.rollback()
+
+	
 					# Send email
-					'''
-					# http://www.tutorialspoint.com/python/python_sending_email.htm
 					sql = 'SELECT email FROM submitted_jobs WHERE job_token = "%s"' % (token)
 					cursor.execute(sql)
 					email = cursor.fetchone()[0]
 					
 					sender = 'no_reply@varifi.cibiv.univie.ac.at'
 					receivers = [email]
-					message = """From: From varifi.cibiv.univie.ac.at <%s>
-					To: To <%s>
-					MIME-Version: 1.0
-					Content-type: text/html
-					Subject: Your VARIFI job finished!
+					next_week = datetime.datetime.now() + datetime.timedelta(days=7)
+					expires_on = next_week.strftime("%A %d %B, %H:%M%p")
 					
-					Your results are available for download <a href="http://localhost/VARIFI/results.php?token=%s">here</a>.
-					""" % (sender, email, token)
+					eMessage = """From: From varifi.cibiv.univie.ac.at <{0}>
+To: To {1}
+MIME-Version: 1.0
+Content-type: text/html
+Subject: Your VARIFI job finished!
+
+Your VARIFI job (<strong>{2}</strong>) has finished running.
+Your results are available <a href="http://varifi.cibiv.univie.ac.at/job_results.php?token={2}">here</a>, until <strong>{3}</strong>.
+<br><br>
+Kind regards,
+<br><br>
+The VARIFI team""".format(sender, email, token, expires_on)
 					
 					try:
 						smtpObj = smtplib.SMTP('localhost')
-						smtpObj.sendmail(sender, receivers, message)
-					except SMTPException: print "Error: unable to send email"
-					'''
-					
-					# Update MySQL
-					sql = 'UPDATE submitted_jobs SET available_until=CURRENT_TIMESTAMP + INTERVAL 1 WEEK, finished=1 WHERE job_token = "%s"' % (token)
-					try: 
-						cursor.execute(sql)
-						db.commit()
-					except: db.rollback()
-					
-					# Move data to /project/varifi/uploads/[token]/
+						smtpObj.sendmail(sender, receivers, eMessage)
+						smtpObj.quit()
+					except SMTPException: pass
 				
 				else: 
 					message = 'time=%s;step=%s;message=%s;|' % (t, output.split(':')[0], output.rstrip().split(':')[1])
