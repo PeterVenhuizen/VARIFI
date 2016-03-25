@@ -42,7 +42,7 @@
 											<header><h2>" . $row['job_token'] . "</h2></header>
 											<p>Your job started on <strong>" . date("j/n H:i:s", strtotime($row['submitted_on'])) . "</strong> and 
 											has " . ($row['finished'] ? "finished. You can download your results from <a href='http://varifi.cibiv.univie.ac.at/job_results.php?token=" . $row['job_token'] . "'>here</a>, 
-											until " . date("j/n H:i:s", strtotime($row['available_until'])) . "." : "not yet finished. 
+											until <strong>" . date("j/n", strtotime($row['available_until'])) . " 23:59:59</strong>." : "not yet finished. 
 											You can view your job progress <a href='http://varifi.cibiv.univie.ac.at/job_progress.php?token=" . $row['job_token'] . "'>here</a>.") . "</p>
 										</article>";
 							}
