@@ -13,13 +13,13 @@
   
 		// Remove from DB
 		try {
-			$stmt = $db->prepare("DELETE FROM job_info WHERE job_token = :job_token");
+			$stmt = $db->prepare("DELETE FROM job_info WHERE BINARY job_token = :job_token");
 			$stmt->bindValue(':job_token', $job_token, PDO::PARAM_STR);
 			$stmt->execute();
 		} catch (PDOException $ex) {  }
 		
 		try {
-			$stmt = $db->prepare("DELETE FROM submitted_jobs WHERE job_token = :job_token");
+			$stmt = $db->prepare("DELETE FROM submitted_jobs WHERE BINARY job_token = :job_token");
 			$stmt->bindValue(':job_token', $job_token, PDO::PARAM_STR);
 			$stmt->execute();
 		} catch (PDOException $ex) {  }

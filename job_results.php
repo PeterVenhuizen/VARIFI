@@ -35,7 +35,7 @@
 		    <?php 
 			if (isset($_GET['token'])) { 
 			    $token = $_GET['token'];
-			    $query = 'SELECT * FROM submitted_jobs WHERE job_token = :token LIMIT 1';
+			    $query = 'SELECT * FROM submitted_jobs WHERE BINARY job_token = :token LIMIT 1';
 			    $query_params = array(':token' => $token);
 			    try {
 				$stmt = $db->prepare($query);
@@ -72,7 +72,7 @@
 				    echo '<table class="overview_table"><tr><td colspan="3">Your job is still running. You can view your job progress <a href="job_progress.php?token=' . $token . '">here</a>, or come back to this page at a later time.</td></tr></table>';
 				}
 			    } else {
-				echo '<table class="overview_table"><tr><td colspan="3">Invalid job token!</td></tr></table>';
+				echo '<table class="overview_table"><tr><td colspan="3">Job token not found in database! Please try again...</td></tr></table>';
 			    }
 			}
 		    ?>

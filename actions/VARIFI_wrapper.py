@@ -23,7 +23,7 @@ def run(token):
 	cursor = db.cursor()
 	
 	# Get input files for job
-	cursor.execute('SELECT read_file, bed_file, hotspot_file FROM job_info WHERE job_token = "%s" LIMIT 1' % (token))
+	cursor.execute('SELECT read_file, bed_file, hotspot_file FROM job_info WHERE BINARY job_token = "%s" LIMIT 1' % (token))
 	jobFiles = FetchOneAssoc(cursor)
 	
 	# Run VARIFI
@@ -43,7 +43,7 @@ def run(token):
 
 	# Set job start time/message
 	message = 'time=%s;step=STARTED;message=Your job has been started.;|' % (time.strftime('%H:%M'))
-	sql = 'UPDATE job_info SET progress = CONCAT(IFNULL(progress, ""), "%s") WHERE job_token = "%s"' % (message, token)
+	sql = 'UPDATE job_info SET progress = CONCAT(IFNULL(progress, ""), "%s") WHERE BINARY job_token = "%s"' % (message, token)
 	try:
 		cursor.execute(sql)
 		db.commit()
@@ -62,7 +62,7 @@ def run(token):
 				if 'ERRORS' in output:
 			
 					# Get submitter email
-					sql = 'SELECT email FROM submitted_jobs WHERE job_token = "%s"' % (token)
+					sql = 'SELECT email FROM submitted_jobs WHERE BINARY job_token = "%s"' % (token)
 					cursor.execute(sql)
 					email = cursor.fetchone()[0]
 	
@@ -90,6 +90,13 @@ def run(token):
 						server.sendmail(from_addr, to_addr, text)
 						server.quit()
 					except SMTPException: pass
+
+                                        # Update MySQL
+                                        sql2 = 'UPDATE submitted_jobs SET available_until=CURRENT_TIMESTAMP + INTERVAL 1 WEEK, finished=1 WHERE BINARY job_token = "%s"' % (token)
+                                        try:
+                                                cursor.execute(sql2)
+                                                db.commit()
+                                        except: db.rollback()
 	
 					# DB update message
 					message = 'time=%s;error=An error occurred while running your job. The error report has been send to the VARIFI Support Team and they will contact you on how to proceed.;|' % (t)
@@ -98,7 +105,7 @@ def run(token):
 					message = 'time=%s;finished=%s;' % (t, token)
 				
                                         # Update MySQL
-                                        sql = 'UPDATE submitted_jobs SET available_until=CURRENT_TIMESTAMP + INTERVAL 1 WEEK, finished=1 WHERE job_token = "%s"' % (token)
+                                        sql = 'UPDATE submitted_jobs SET available_until=CURRENT_TIMESTAMP + INTERVAL 1 WEEK, finished=1 WHERE BINARY job_token = "%s"' % (token)
                                         try:
                                                 cursor.execute(sql)
                                                 db.commit()
@@ -106,7 +113,7 @@ def run(token):
 
 	
 					# Send email
-					sql = 'SELECT email FROM submitted_jobs WHERE job_token = "%s"' % (token)
+					sql = 'SELECT email FROM submitted_jobs WHERE BINARY job_token = "%s"' % (token)
 					cursor.execute(sql)
 					email = cursor.fetchone()[0]
 					
@@ -137,7 +144,7 @@ The VARIFI team""".format(sender, email, token, expires_on)
 				else: 
 					message = 'time=%s;step=%s;message=%s;|' % (t, output.split(':')[0], output.rstrip().split(':')[1])
 				
-				sql = 'UPDATE job_info SET progress = CONCAT(IFNULL(progress, ""), "%s") WHERE job_token = "%s"' % (message, token)
+				sql = 'UPDATE job_info SET progress = CONCAT(IFNULL(progress, ""), "%s") WHERE BINARY job_token = "%s"' % (message, token)
 				try:
 					cursor.execute(sql)
 					db.commit()

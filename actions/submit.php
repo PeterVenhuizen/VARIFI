@@ -8,7 +8,7 @@
     $is_bad_token = True;
     while ($is_bad_token) {
 		$token = generate_token(8);
-		$n_matches = $mysqli->query("SELECT COUNT(*) AS n_matches FROM submitted_jobs WHERE job_token = '$token'")->fetch_object()->n_matches;
+		$n_matches = $mysqli->query("SELECT COUNT(*) AS n_matches FROM submitted_jobs WHERE BINARY job_token = '$token'")->fetch_object()->n_matches;
 		if (!$n_matches) { $is_bad_token = False; }
     }
 

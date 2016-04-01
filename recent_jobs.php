@@ -29,7 +29,7 @@
 				if (isset($_COOKIE['varifi_rj'])) {
 					$tokens = explode('|', $_COOKIE['varifi_rj']);
 					foreach($tokens as $t) {
-						$query = 'SELECT job_token, submitted_on, available_until, finished from submitted_jobs WHERE job_token = :token';
+						$query = 'SELECT job_token, submitted_on, available_until, finished from submitted_jobs WHERE BINARY job_token = :token';
 						$query_params = array(':token' => $t);
 						try {
 							$stmt = $db->prepare($query);

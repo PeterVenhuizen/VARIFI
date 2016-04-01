@@ -7,7 +7,7 @@
 		$job_token = $_POST['token'];
 
 		// Get read file
-		$read_file = $mysqli->query("SELECT read_file FROM job_info WHERE job_token = '$job_token' LIMIT 1")->fetch_object()->read_file;
+		$read_file = $mysqli->query("SELECT read_file FROM job_info WHERE BINARY job_token = '$job_token' LIMIT 1")->fetch_object()->read_file;
 		
 		// Start job
 		$cmd = 'SGE_ROOT=/software/sge-2011.11 ';
@@ -20,7 +20,7 @@
 		
 		$time = date('H:i');
 		$message = 'time=' . $time . ';step=SUBMITTED;message=Your job has been submitted to the computing queue.;|';
-		$query = 'UPDATE job_info SET progress = :message WHERE job_token = :job_token';
+		$query = 'UPDATE job_info SET progress = :message WHERE BINARY job_token = :job_token';
 		$query_params = array(':message' => $message, ':job_token' => $job_token);
 		try {
 			$stmt = $db->prepare($query);

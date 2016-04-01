@@ -40,7 +40,7 @@
                 if ( isset($_GET['token']) || isset($_POST['get_progress']) ) {
               
                     $token = (isset($_GET['token']) ? $_GET['token'] : $_POST['job_token']);
-                    $query = 'SELECT progress FROM job_info WHERE job_token = :token LIMIT 1';
+                    $query = 'SELECT progress FROM job_info WHERE BINARY job_token = :token LIMIT 1';
                     $query_params = array(':token' => $token);
                     try {
                         $stmt = $db->prepare($query);
